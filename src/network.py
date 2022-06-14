@@ -7,9 +7,8 @@ class Network:
         self.sizes = sizes
         self.num_layers = len(sizes)
         self.biases  = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y, x) for y, x in zip(sizes[1:], sizes[:-1])]
+        self.weights = [np.random.randn(y, x) for y,x in zip(sizes[1:], sizes[:-1])]
         """ Create the pairs (Weights,Nodes) for each layer except the last one.
-            Create matrices with dimension (Weights,Nodes) and randomize its values.
-            -> The lines represent the weights of a node.
-            -> The columns are the values of each weight.
+            Create matrices with dimension [Weights x Nodes] and randomize its values.
+            Each column of the matrix has all the weights of a single node.
         """
