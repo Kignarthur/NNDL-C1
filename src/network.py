@@ -35,7 +35,7 @@ class Network:
         """
         self.activations = [x]
 
-        for W, b in zip(self.weights, self.bias):
+        for W, b in zip(self.weights, self.biases):
             z = np.dot(W, x) + b
             x = σ(z)
             self.zs.append(z)
@@ -43,7 +43,7 @@ class Network:
 
         return x
 
-    def stochastic_gradient_descent(self, training_data, epochs, mini_batch_size, η, test_data=None):
+    def stochastic_gradient_descent(self, training_data, epochs, mini_batch_size, learning_rate, test_data=None):
         N = len(training_data)
 
         for epoch in range(epochs):
@@ -53,12 +53,12 @@ class Network:
                 for k in range(0, N, mini_batch_size)]
 
             for mini_batch in mini_batches:
-                self.update_weights_and_biases(mini_batch, η)
+                self.update_weights_and_biases(mini_batch, learning_rate)
 
             if test_data:
                 print(f"Epoch {epoch}: {self.evaluate_test_data(test_data)} / {len(test_data)}")
             else:
-                print("Epoch {epoch} complete")
+                print(f"Epoch {epoch} complete")
 
     def update_weights_and_biases(self, mini_batch, η):
         m = len(mini_batch)
@@ -67,7 +67,7 @@ class Network:
 
         # Sum over all the elements in the mini-batch
         for x, y in mini_batch:
-            nabla_b_x, nabla_w_x = self.backprop(x, y)
+            nabla_b_x, nabla_w_x = self.backpropagate(x, y)
             nabla_b = [nb + nbx for nb, nbx in zip(nabla_b, nabla_b_x)]
             nabla_w = [nw + nwx for nw, nwx in zip(nabla_w, nabla_w_x)]
 
@@ -79,7 +79,8 @@ class Network:
     def backpropagate(self, x, y):
         nabla_b_x = [np.zeros(b.shape) for b in self.biases]
         nabla_w_x = [np.zeros(w.shape) for w in self.weights]
-        L = self.num_layers - 1
+        Layer = self.num_layers - 1
+        L = -1
 
         # Feed forward
         self.feedforward_training_example(x)
@@ -94,11 +95,11 @@ class Network:
         nabla_w_x[L] = np.dot(δ, self.activations[L-1].T)
 
         # Backpropagate
-        for l in reversed(range(1, L)):
-            δ = np.dot(self.weights[l+1].T, δ) * σp(self.zs[l])
+        for l in reversed(range(1, Layer)):
+            δ = np.dot(self.weights[l].T, δ) * σp(self.zs[l-1])
 
-            nabla_b_x[l] = δ
-            nabla_w_x[l] = np.dot(δ, self.activations[l-1].T)
+            nabla_b_x[l-1] = δ
+            nabla_w_x[l-1] = np.dot(δ, self.activations[l-1].T)
 
         return (nabla_b_x, nabla_w_x)
 
