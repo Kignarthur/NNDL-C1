@@ -7,7 +7,7 @@ class Network:
     def __init__(self, layers):
         self.layers  = layers
         self.biases  = [np.random.randn(bias, 1) for bias in layers[1:]]
-        self.weights = [np.random.randn(weights, node) for weights,node in zip(layers[1:], layers[:-1])]
+        self.weights = [np.random.randn(weights, node) for weights, node in zip(layers[1:], layers[:-1])]
         """ Create the pairs (Weights,Node) for each layer except the last one.
             Create matrices with dimension [Weights x Node] and randomize its values.
             Each column of the matrix has all the weights of a single node.
@@ -71,10 +71,14 @@ class Network:
         self.biases = [b - (η/m) * nb for b, nb in zip(self.biases, nabla_b)]
         self.weights = [w - (η/m) * nw for w, nw in zip(self.weights, nabla_w)]
 
+
+    def backpropagate(self, x, y):
+        nabla_b_x = [np.zeros(b.shape) for b in self.biases]
+        nabla_w_x = [np.zeros(w.shape) for w in self.weights]
         L = self.num_layers - 1
 
         # Feed forward
-        self.feedforward(x)
+        self.feedforward_training_example(x)
 
         # Compute δ of the last layer L
         z_L = self.zs[L]
@@ -82,17 +86,17 @@ class Network:
         δ = self.cost_derivative(a_L, y) * σp(z_L)
 
         # Compute gradient for the cost function C_x
-        nabla_b[L] = δ
-        nabla_w[L] = np.dot(δ, self.activations[L-1].T)
+        nabla_b_x[L] = δ
+        nabla_w_x[L] = np.dot(δ, self.activations[L-1].T)
 
         # Backpropagate
         for l in reversed(range(1, L)):
-            δ = np.dot(self.weights[l].T, δ) * σp(self.zs[l])
+            δ = np.dot(self.weights[l+1].T, δ) * σp(self.zs[l])
 
-            nabla_b[l] = δ
-            nabla_w[l] = np.dot(δ, self.activations[l-1].T)
+            nabla_b_x[l] = δ
+            nabla_w_x[l] = np.dot(δ, self.activations[l-1].T)
 
-        return (nabla_b, nabla_w)
+        return (nabla_b_x, nabla_w_x)
 
     def cost_derivative(self, network_output, y):
         return (network_output - y)
