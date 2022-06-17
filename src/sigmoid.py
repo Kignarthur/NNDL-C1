@@ -1,7 +1,10 @@
 import numpy as np
 
-def sigmoid(z):
+def σ(z):
+    """ Sigmoid function"""
     return 1/(1 + np.exp(z))
 
-def sigmoid_derivative(z):
-    return sigmoid(z) * (1-sigmoid(z))
+def σp(z):
+    """ Sigmoid first derivative"""
+    return σ(z) * (1-σ(z))
+
