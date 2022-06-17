@@ -19,22 +19,25 @@ class Network:
         self.activations = []
 
     def feedforward(self, x):
-        """ Return the output of the network for the input a_l."""
+        """ Return the output of the network for the input x."""
+        for W, b in zip(self.weights, self.bias): x = σ(np.dot(W, x) + b)
+        return x
+
+    def feedforward_training_example(self, x):
+        """ Return the output of the network for the input x."""
         """ The activation value of a single node in the next layer is equal to σ(Σ w_jk*x_k + b_j).
             Therefore to obtain the vector of activations we multiply the vector a_l by the weight
             matrix W, and add the vector b of biases. We then apply the function σ elementwise.
         """
         self.activations = [x]
 
-        a_l = x
-        for W,b in zip(self.weights, self.bias):
-            z = np.dot(W, a_l) + b
-            a_l = σ(z)
-
+        for W, b in zip(self.weights, self.bias):
+            z = np.dot(W, x) + b
+            x = σ(z)
             self.zs.append(z)
-            self.activations.append(a_l)
+            self.activations.append(x)
 
-        return a_l
+        return x
 
     def backpropagate(self, x, y):
         nabla_b = [np.zeros(b.shape) for b in self.biases]
