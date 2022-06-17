@@ -18,6 +18,10 @@ class Network:
         self.zs = []
         self.activations = []
 
+    def evaluate_test_data(self, test_data):
+        test_results = [(np.argmax(self.feedforward(x)), y) for (x, y) in test_data]
+        return sum(int(x == y) for (x,y) in test_results)
+
     def feedforward(self, x):
         """ Return the output of the network for the input x."""
         for W, b in zip(self.weights, self.bias): x = σ(np.dot(W, x) + b)
@@ -52,7 +56,7 @@ class Network:
                 self.update_weights_and_biases(mini_batch, η)
 
             if test_data:
-                print(f"Epoch {epoch}: {self.evaluate(test_data)} / {len(test_data)}")
+                print(f"Epoch {epoch}: {self.evaluate_test_data(test_data)} / {len(test_data)}")
             else:
                 print("Epoch {epoch} complete")
 
