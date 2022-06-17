@@ -56,8 +56,21 @@ class Network:
             else:
                 print("Epoch {epoch} complete")
 
+    def update_weights_and_biases(self, mini_batch, η):
+        m = len(mini_batch)
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
+
+        # Sum over all the elements in the mini-batch
+        for x, y in mini_batch:
+            nabla_b_x, nabla_w_x = self.backprop(x, y)
+            nabla_b = [nb + nbx for nb, nbx in zip(nabla_b, nabla_b_x)]
+            nabla_w = [nw + nwx for nw, nwx in zip(nabla_w, nabla_w_x)]
+
+        # Gradient Descent Update
+        self.biases = [b - (η/m) * nb for b, nb in zip(self.biases, nabla_b)]
+        self.weights = [w - (η/m) * nw for w, nw in zip(self.weights, nabla_w)]
+
         L = self.num_layers - 1
 
         # Feed forward
