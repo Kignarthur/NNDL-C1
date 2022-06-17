@@ -39,7 +39,23 @@ class Network:
 
         return x
 
-    def backpropagate(self, x, y):
+    def stochastic_gradient_descent(self, training_data, epochs, mini_batch_size, η, test_data=None):
+        N = len(training_data)
+
+        for epoch in range(epochs):
+            random.shuffle(training_data)
+            mini_batches = \
+                [training_data[k:k+mini_batch_size]
+                for k in range(0, N, mini_batch_size)]
+
+            for mini_batch in mini_batches:
+                self.update_weights_and_biases(mini_batch, η)
+
+            if test_data:
+                print(f"Epoch {epoch}: {self.evaluate(test_data)} / {len(test_data)}")
+            else:
+                print("Epoch {epoch} complete")
+
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         L = self.num_layers - 1
