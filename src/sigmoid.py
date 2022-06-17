@@ -6,5 +6,4 @@ def σ(z):
 
 def σp(z):
     """ Sigmoid first derivative"""
-    return σ(z) * (1-σ(z))
-
+    return σ(z) * (1 - σ(z))
