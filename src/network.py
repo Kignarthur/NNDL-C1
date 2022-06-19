@@ -26,21 +26,6 @@ class Network:
         for W, b in zip(self.weights, self.biases): x = σ(np.dot(W, x) + b)
         return x
 
-    def feedforward_training_example(self, x):
-        """ Return the output of the network for the input x."""
-        """ The activation value of a single node in the next layer is equal to σ(Σ w_jk*x_k + b_j).
-            Therefore to obtain the vector of activations we multiply the vector a_l by the weight
-            matrix W, and add the vector b of biases. We then apply the function σ elementwise.
-        """
-        self.zs = []
-        self.activations = [x]
-
-        for W, b in zip(self.weights, self.biases):
-            z = np.dot(W, x) + b
-            x = σ(z)
-            self.zs.append(z)
-            self.activations.append(x)
-
     def stochastic_gradient_descent(self, training_data, epochs, mini_batch_size, learning_rate, test_data=None):
         N = len(training_data)
 
@@ -99,6 +84,21 @@ class Network:
             nabla_w_x[l-1] = np.dot(δ, self.activations[l-1].T)
 
         return (nabla_b_x, nabla_w_x)
+
+    def feedforward_training_example(self, x):
+        """ Return the output of the network for the input x."""
+        """ The activation value of a single node in the next layer is equal to σ(Σ w_jk*x_k + b_j).
+            Therefore to obtain the vector of activations we multiply the vector a_l by the weight
+            matrix W, and add the vector b of biases. We then apply the function σ elementwise.
+        """
+        self.zs = []
+        self.activations = [x]
+
+        for W, b in zip(self.weights, self.biases):
+            z = np.dot(W, x) + b
+            x = σ(z)
+            self.zs.append(z)
+            self.activations.append(x)
 
     def cost_derivative(self, network_output, y):
         return (network_output - y)
