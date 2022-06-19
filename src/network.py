@@ -1,6 +1,5 @@
 import random
 import numpy as np
-from typing import Tuple
 
 from sigmoid import σ, σp
 
@@ -24,7 +23,7 @@ class Network:
         self.zs = None
         self.activations = None
 
-    def evaluate_test_data(self, test_data: list[Tuple]):
+    def evaluate_test_data(self, test_data: list[tuple]):
         """
         Returns the number of test inputs for which the
         neural network outputs the correct result.
@@ -37,9 +36,9 @@ class Network:
         for W, b in zip(self.weights, self.biases): x = σ(np.dot(W, x) + b)
         return x
 
-    def stochastic_gradient_descent(self, training_data: list[Tuple], epochs: int,
-                                    mini_batch_size: list[Tuple], learning_rate: float,
-                                    test_data: list[Tuple] = None):
+    def stochastic_gradient_descent(self, training_data: list[tuple], epochs: int,
+                                    mini_batch_size: int, learning_rate: float,
+                                    test_data: list[tuple] = None):
         """
         Train the neural network using mini-batch stochastic gradient descent.
         The ``training_data`` is a list of tuples ``(x, y)`` representing
@@ -64,7 +63,7 @@ class Network:
             else:
                 print(f"Epoch {epoch} complete")
 
-    def update_weights_and_biases(self, mini_batch: list[Tuple], η: float):
+    def update_weights_and_biases(self, mini_batch: list[tuple], η: float):
         """
         Update the network's weights and biases by applying gradient
         descent using backpropagation to a single mini batch ``mini_batch``
