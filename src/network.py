@@ -1,10 +1,17 @@
 import random
 import numpy as np
+from typing import Tuple
+
 from sigmoid import σ, σp
 
 class Network:
 
-    def __init__(self, layers):
+    def __init__(self, layers: list[int]):
+        """
+        Sets up the network with the number of neurons in each
+        layer defined by ``layers`` and initializes the weights
+        and biases using a Normal Distribution N(0,1).
+        """
         self.num_layers = len(layers)
         self.biases  = [np.random.randn(bias, 1) for bias in layers[1:]]
         self.weights = [np.random.randn(weights, node) for weights, node in zip(layers[1:], layers[:-1])]
@@ -17,16 +24,30 @@ class Network:
         self.zs = None
         self.activations = None
 
-    def evaluate_test_data(self, test_data):
+    def evaluate_test_data(self, test_data: list[Tuple]):
+        """
+        Returns the number of test inputs for which the
+        neural network outputs the correct result.
+        """
         test_results = [(np.argmax(self.feedforward(x)), y) for (x, y) in test_data]
         return sum(int(x == y) for (x,y) in test_results)
 
-    def feedforward(self, x):
-        """ Return the output of the network for the input x."""
+    def feedforward(self, x: np.ndarray):
+        """ Returns the output of the network for the input ``x``."""
         for W, b in zip(self.weights, self.biases): x = σ(np.dot(W, x) + b)
         return x
 
-    def stochastic_gradient_descent(self, training_data, epochs, mini_batch_size, learning_rate, test_data=None):
+    def stochastic_gradient_descent(self, training_data: list[Tuple], epochs: int,
+                                    mini_batch_size: list[Tuple], learning_rate: float,
+                                    test_data: list[Tuple] = None):
+        """
+        Train the neural network using mini-batch stochastic gradient descent.
+        The ``training_data`` is a list of tuples ``(x, y)`` representing
+        the training inputs and the labeled outputs. If ``test_data`` is
+        provided then the
+        network will be evaluated against the test data after each
+        epoch, and partial progress printed out.
+        """
         N = len(training_data)
 
         for epoch in range(epochs):
@@ -43,7 +64,12 @@ class Network:
             else:
                 print(f"Epoch {epoch} complete")
 
-    def update_weights_and_biases(self, mini_batch, η):
+    def update_weights_and_biases(self, mini_batch: list[Tuple], η: float):
+        """
+        Update the network's weights and biases by applying gradient
+        descent using backpropagation to a single mini batch ``mini_batch``
+        and a learning rate ``η``.
+        """
         m = len(mini_batch)
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
@@ -58,7 +84,12 @@ class Network:
         self.biases  = [b - (η/m) * nb for b, nb in zip(self.biases, nabla_b)]
         self.weights = [w - (η/m) * nw for w, nw in zip(self.weights, nabla_w)]
 
-    def backpropagate(self, x, y):
+    def backpropagate(self, x: np.ndarray, y: np.ndarray):
+        """
+        Returns a tuple ``(nabla_b, nabla_w)`` representing the gradient
+        for the cost function of a single training example ``x`` given
+        its label ``y``.
+        """
         nabla_b_x = [np.zeros(b.shape) for b in self.biases]
         nabla_w_x = [np.zeros(w.shape) for w in self.weights]
         last_layer = self.num_layers - 1
@@ -85,11 +116,10 @@ class Network:
 
         return (nabla_b_x, nabla_w_x)
 
-    def feedforward_training_example(self, x):
-        """ Return the output of the network for the input x."""
-        """ The activation value of a single node in the next layer is equal to σ(Σ w_jk*x_k + b_j).
-            Therefore to obtain the vector of activations we multiply the vector a_l by the weight
-            matrix W, and add the vector b of biases. We then apply the function σ elementwise.
+    def feedforward_training_example(self, x: np.ndarray):
+        """
+        Updates the signals and the activations arrays of the network
+        for a single training example ``x``.
         """
         self.zs = []
         self.activations = [x]
@@ -100,5 +130,9 @@ class Network:
             self.zs.append(z)
             self.activations.append(x)
 
-    def cost_derivative(self, network_output, y):
+    def cost_derivative(self, network_output: np.ndarray, y: np.ndarray):
+        """
+        Returns the derivative of the cost function given the
+        ``network_output`` and the correct label ``y``.
+        """
         return (network_output - y)
