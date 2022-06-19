@@ -1,5 +1,6 @@
 """ Source Code: https://github.com/hsjeong5/MNIST-for-Numpy.git """
 
+import os
 import gzip
 import pickle
 import numpy as np
@@ -13,13 +14,12 @@ filename = [
 ]
 
 def load_examples(size):
-    train_examples, train_labels, test_examples, test_labels = get_mnist()
-    training_data = [(reshape_input(x, size), vectorized_result(y)) for x, y in zip(train_examples, train_labels)]
-    test_data     = [(reshape_input(x, size), y) for x, y in zip(test_examples, test_labels)]
-    return (training_data, test_data)
+    reshape = lambda x,s: np.reshape(x, (s, 1))
 
-def reshape_input(x, size):
-    return np.reshape(x, (size, 1))
+    train_examples, train_labels, test_examples, test_labels = get_mnist()
+    training_data = [(reshape(x, size), vectorized_result(y)) for x, y in zip(train_examples, train_labels)]
+    test_data     = [(reshape(x, size), y) for x, y in zip(test_examples, test_labels)]
+    return (training_data, test_data)
 
 def vectorized_result(j):
     e = np.zeros((10, 1))
@@ -56,9 +56,15 @@ def save_mnist():
 
     print("Save complete.")
 
+def delete_mnist():
+    for name in filename:
+        os.remove(name[1])
+    print("Delete completed.")
+
 def init():
     download_mnist()
     save_mnist()
+    delete_mnist()
 
 if __name__ == '__main__':
     init()
