@@ -1,8 +1,11 @@
-import numpy as np
+import warnings
+from numpy import exp
+
+warnings.filterwarnings('ignore')
 
 def σ(z):
     """ Sigmoid function"""
-    return 1/(1 + np.exp(-z))
+    return 1.0/(1.0 + exp(-z))
 
 def σp(z):
     """ Sigmoid first derivative"""
