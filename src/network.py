@@ -1,6 +1,5 @@
 import random
 import numpy as np
-
 from sigmoid import σ, σp
 
 class Network:
@@ -14,9 +13,9 @@ class Network:
         self.num_layers = len(layers)
         self.biases  = [np.random.randn(bias, 1) for bias in layers[1:]]
         self.weights = [np.random.randn(weights, node) for weights, node in zip(layers[1:], layers[:-1])]
-        """ Create the pairs (Weights,Node) for each layer except the last one.
-            Create matrices with dimension [Weights x Node] and randomize its values.
-            Each column of the matrix has all the weights of a single node.
+        """
+        Create a matrix for each layer where the columns are the nodes and
+        the lines are the weights of a single node.
         """
 
         # Store values to backpropagate
