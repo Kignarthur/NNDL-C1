@@ -5,18 +5,17 @@ from sigmoid import σ, σp
 class Network:
 
     def __init__(self, layers):
-        self.layers  = layers
+        self.num_layers = len(layers)
         self.biases  = [np.random.randn(bias, 1) for bias in layers[1:]]
         self.weights = [np.random.randn(weights, node) for weights, node in zip(layers[1:], layers[:-1])]
         """ Create the pairs (Weights,Node) for each layer except the last one.
             Create matrices with dimension [Weights x Node] and randomize its values.
             Each column of the matrix has all the weights of a single node.
         """
-        self.num_layers = len(layers)
 
         # Store values to backpropagate
-        self.zs = []
-        self.activations = []
+        self.zs = None
+        self.activations = None
 
     def evaluate_test_data(self, test_data):
         test_results = [(np.argmax(self.feedforward(x)), y) for (x, y) in test_data]
@@ -24,7 +23,7 @@ class Network:
 
     def feedforward(self, x):
         """ Return the output of the network for the input x."""
-        for W, b in zip(self.weights, self.bias): x = σ(np.dot(W, x) + b)
+        for W, b in zip(self.weights, self.biases): x = σ(np.dot(W, x) + b)
         return x
 
     def feedforward_training_example(self, x):
@@ -33,6 +32,7 @@ class Network:
             Therefore to obtain the vector of activations we multiply the vector a_l by the weight
             matrix W, and add the vector b of biases. We then apply the function σ elementwise.
         """
+        self.zs = []
         self.activations = [x]
 
         for W, b in zip(self.weights, self.biases):
@@ -40,8 +40,6 @@ class Network:
             x = σ(z)
             self.zs.append(z)
             self.activations.append(x)
-
-        return x
 
     def stochastic_gradient_descent(self, training_data, epochs, mini_batch_size, learning_rate, test_data=None):
         N = len(training_data)
@@ -72,14 +70,13 @@ class Network:
             nabla_w = [nw + nwx for nw, nwx in zip(nabla_w, nabla_w_x)]
 
         # Gradient Descent Update
-        self.biases = [b - (η/m) * nb for b, nb in zip(self.biases, nabla_b)]
+        self.biases  = [b - (η/m) * nb for b, nb in zip(self.biases, nabla_b)]
         self.weights = [w - (η/m) * nw for w, nw in zip(self.weights, nabla_w)]
-
 
     def backpropagate(self, x, y):
         nabla_b_x = [np.zeros(b.shape) for b in self.biases]
         nabla_w_x = [np.zeros(w.shape) for w in self.weights]
-        Layer = self.num_layers - 1
+        last_layer = self.num_layers - 1
         L = -1
 
         # Feed forward
@@ -95,7 +92,7 @@ class Network:
         nabla_w_x[L] = np.dot(δ, self.activations[L-1].T)
 
         # Backpropagate
-        for l in reversed(range(1, Layer)):
+        for l in reversed(range(1, last_layer)):
             δ = np.dot(self.weights[l].T, δ) * σp(self.zs[l-1])
 
             nabla_b_x[l-1] = δ
