@@ -40,11 +40,10 @@ class Network:
                                     test_data: list[tuple] = None):
         """
         Train the neural network using mini-batch stochastic gradient descent.
-        The ``training_data`` is a list of tuples ``(x, y)`` representing
-        the training inputs and the labeled outputs. If ``test_data`` is
-        provided then the
-        network will be evaluated against the test data after each
-        epoch, and partial progress printed out.
+        The ``training_data`` is a list of tuples ``(x, y)`` representing the
+        training inputs and the labeled outputs. If ``test_data`` is provided
+        then the network will be evaluated against the test data after each
+        epoch and partial progress printed out.
         """
         for epoch in range(epochs):
             random.shuffle(training_data)
@@ -62,15 +61,15 @@ class Network:
 
     def update_weights_and_biases(self, mini_batch: list[tuple], η: float):
         """
-        Update the network's weights and biases by applying gradient
-        descent using backpropagation to a single mini batch ``mini_batch``
-        and a learning rate ``η``.
+        Update the network's weights and biases by applying gradient descent
+        using backpropagation to a single mini batch ``mini_batch`` and a
+        learning rate ``η``.
         """
         m = len(mini_batch)
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
 
-        # Sum over all the elements in the mini-batch
+        # Create mini-batch matrices
         x = tuple((mini_batch[i][0] for i in range(m)))
         y = tuple((mini_batch[i][1] for i in range(m)))
         X  = np.column_stack(x)
@@ -79,13 +78,13 @@ class Network:
 
         # Gradient Descent Update
         self.biases  = [b - (η/m) * nb.sum(axis=1).reshape(-1,1) for b, nb in zip(self.biases, nabla_b)]
-        self.weights = [w - (η/m) * nw for w, nw in zip(self.weights, nabla_w)]
+        self.weights = [W - (η/m) * NW for W, NW in zip(self.weights, nabla_w)]
 
     def backpropagate(self, X: np.ndarray, Y: np.ndarray):
         """
         Returns a tuple ``(nabla_b, nabla_w)`` representing the gradient
-        for the cost function of m training examples where ``X`` is a
-        matrix whose columns are the vectors in the mini-batch and ``Y``
+        for the cost function of the training examples where ``X`` is a
+        matrix whose columns are the examples of the mini-batch and ``Y``
         is a matrix whose columns are the labels.
         """
         nabla_b = [np.zeros(b.shape) for b in self.biases]
@@ -107,7 +106,7 @@ class Network:
 
         # Backpropagate
         for l in reversed(range(1, last_layer)):
-            Z = self.Zs[l-1]
+            Z  = self.Zs[l-1]
             AT = self.As[l-1].T
             WT = self.weights[l].T
 
@@ -120,7 +119,7 @@ class Network:
     def feedforward_training_matrix(self, A: np.ndarray):
         """
         Updates the signals and the activations arrays of the network where
-        ``A`` is a matrix whose columns are the vectors in the mini-batch.
+        ``A`` is a matrix whose columns are the examples of the mini-batch.
         """
         batch_size = A.shape[1]
         self.Zs = []
