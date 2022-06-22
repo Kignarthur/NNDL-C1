@@ -81,37 +81,41 @@ class Network:
         self.biases  = [b - (η/m) * nb.sum(axis=1).reshape(-1,1) for b, nb in zip(self.biases, nabla_b)]
         self.weights = [w - (η/m) * nw for w, nw in zip(self.weights, nabla_w)]
 
-    def backpropagate(self, x: np.ndarray, y: np.ndarray):
+    def backpropagate(self, X: np.ndarray, Y: np.ndarray):
         """
         Returns a tuple ``(nabla_b, nabla_w)`` representing the gradient
-        for the cost function of a single training example ``x`` given
-        its label ``y``.
+        for the cost function of m training examples where ``X`` is a
+        matrix whose columns are the vectors in the mini-batch and ``Y``
+        is a matrix whose columns are the labels.
         """
-        nabla_b_x = [np.zeros(b.shape) for b in self.biases]
-        nabla_w_x = [np.zeros(w.shape) for w in self.weights]
-        last_layer = self.num_layers - 1
+        nabla_b = [np.zeros(b.shape) for b in self.biases]
+        nabla_w = [np.zeros(w.shape) for w in self.weights]
+        last_layer = self.n_layers - 1
         L = -1
 
         # Feed forward
-        self.feedforward_training_example(x)
+        self.feedforward_training_example(X)
 
         # Compute δ of the last layer L
-        z_L = self.zs[L]
-        a_L = self.activations[L]
-        δ = self.cost_derivative(a_L, y) * σp(z_L)
+        Z_L = self.Zs[L]
+        A_L = self.As[L]
+        δ = self.cost_derivative(A_L, Y) * σp(Z_L)
 
         # Compute gradient for the cost function C_x
-        nabla_b_x[L] = δ
-        nabla_w_x[L] = np.dot(δ, self.activations[L-1].T)
+        nabla_b[L] = δ
+        nabla_w[L] = np.dot(δ, self.As[L-1].T)
 
         # Backpropagate
         for l in reversed(range(1, last_layer)):
-            δ = np.dot(self.weights[l].T, δ) * σp(self.zs[l-1])
+            Z = self.Zs[l-1]
+            AT = self.As[l-1].T
+            WT = self.weights[l].T
 
-            nabla_b_x[l-1] = δ
-            nabla_w_x[l-1] = np.dot(δ, self.activations[l-1].T)
+            δ = np.dot(WT, δ) * σp(Z)
+            nabla_b[l-1] = δ
+            nabla_w[l-1] = np.dot(δ, AT)
 
-        return (nabla_b_x, nabla_w_x)
+        return (nabla_b, nabla_w)
 
     def feedforward_training_example(self, x: np.ndarray):
         """
