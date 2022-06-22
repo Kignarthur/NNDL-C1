@@ -94,7 +94,7 @@ class Network:
         L = -1
 
         # Feed forward
-        self.feedforward_training_example(X)
+        self.feedforward_training_matrix(X)
 
         # Compute δ of the last layer L
         Z_L = self.Zs[L]
@@ -117,19 +117,21 @@ class Network:
 
         return (nabla_b, nabla_w)
 
-    def feedforward_training_example(self, x: np.ndarray):
+    def feedforward_training_matrix(self, A: np.ndarray):
         """
-        Updates the signals and the activations arrays of the network
-        for a single training example ``x``.
+        Updates the signals and the activations arrays of the network where
+        ``A`` is a matrix whose columns are the vectors in the mini-batch.
         """
-        self.zs = []
-        self.activations = [x]
+        batch_size = A.shape[1]
+        self.Zs = []
+        self.As = [A]
 
         for W, b in zip(self.weights, self.biases):
-            z = np.dot(W, x) + b
-            x = σ(z)
-            self.zs.append(z)
-            self.activations.append(x)
+            B = np.repeat(b, batch_size, axis=1) # Create a matrix of biases j x m
+            Z = np.array(np.dot(W, A) + B)
+            A = σ(Z)
+            self.Zs.append(Z)
+            self.As.append(A)
 
     def cost_derivative(self, network_output: np.ndarray, y: np.ndarray):
         """
