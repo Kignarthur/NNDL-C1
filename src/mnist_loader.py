@@ -57,10 +57,11 @@ def load_data_wrapper():
     the training data and the validation / test data.  These formats
     turn out to be the most convenient for use in our neural network
     code."""
+    reshape = lambda x, s: np.reshape(x, (s, 1))
     tr_d, va_d, te_d = load_data()
-    training_data   = [(np.reshape(x, (784, 1)), vectorized_result(y)) for x,y in zip(tr_d[0], tr_d[1])]
-    validation_data = [(np.reshape(x, (784, 1)), y) for x,y in zip(va_d[0], va_d[1])]
-    test_data       = [(np.reshape(x, (784, 1)), y) for x,y in zip(te_d[0], te_d[1])]
+    training_data   = [(reshape(x, 784), vectorized_result(y)) for x,y in zip(tr_d[0], tr_d[1])]
+    validation_data = [(reshape(x, 784), y) for x,y in zip(va_d[0], va_d[1])]
+    test_data       = [(reshape(x, 784), y) for x,y in zip(te_d[0], te_d[1])]
     return (training_data, validation_data, test_data)
 
 def vectorized_result(j):
