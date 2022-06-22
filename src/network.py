@@ -10,7 +10,7 @@ class Network:
         layer defined by ``layers`` and initializes the weights
         and biases using a Normal Distribution N(0,1).
         """
-        self.num_layers = len(layers)
+        self.n_layers = len(layers)
         self.biases  = [np.random.randn(bias, 1) for bias in layers[1:]]
         self.weights = [np.random.randn(weights, node) for weights, node in zip(layers[1:], layers[:-1])]
         """
@@ -19,8 +19,8 @@ class Network:
         """
 
         # Store values to backpropagate
-        self.zs = None
-        self.activations = None
+        self.Zs = None # Signals
+        self.As = None # Activations
 
     def evaluate_test_data(self, test_data: list[tuple]):
         """
@@ -46,13 +46,11 @@ class Network:
         network will be evaluated against the test data after each
         epoch, and partial progress printed out.
         """
-        N = len(training_data)
-
         for epoch in range(epochs):
             random.shuffle(training_data)
             mini_batches = \
                 [training_data[k:k+mini_batch_size]
-                for k in range(0, N, mini_batch_size)]
+                for k in range(0, len(training_data), mini_batch_size)]
 
             for mini_batch in mini_batches:
                 self.update_weights_and_biases(mini_batch, learning_rate)
