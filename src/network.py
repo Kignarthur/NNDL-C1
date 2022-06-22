@@ -71,13 +71,14 @@ class Network:
         nabla_w = [np.zeros(w.shape) for w in self.weights]
 
         # Sum over all the elements in the mini-batch
-        for x, y in mini_batch:
-            nabla_b_x, nabla_w_x = self.backpropagate(x, y)
-            nabla_b = [nb + nbx for nb, nbx in zip(nabla_b, nabla_b_x)]
-            nabla_w = [nw + nwx for nw, nwx in zip(nabla_w, nabla_w_x)]
+        x = tuple((mini_batch[i][0] for i in range(m)))
+        y = tuple((mini_batch[i][1] for i in range(m)))
+        X  = np.column_stack(x)
+        Y  = np.column_stack(y)
+        nabla_b, nabla_w = self.backpropagate(X, Y)
 
         # Gradient Descent Update
-        self.biases  = [b - (η/m) * nb for b, nb in zip(self.biases, nabla_b)]
+        self.biases  = [b - (η/m) * nb.sum(axis=1).reshape(-1,1) for b, nb in zip(self.biases, nabla_b)]
         self.weights = [w - (η/m) * nw for w, nw in zip(self.weights, nabla_w)]
 
     def backpropagate(self, x: np.ndarray, y: np.ndarray):
